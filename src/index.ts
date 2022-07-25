@@ -5,10 +5,12 @@ const d3Composite = require("d3-composite-projections");
 import { latLongCommunities } from "./communities";
 import { comunidad, covid_comunidades_autonomas_april, covid_comunidades_autonomas_november } from "./covid_comunidades_autonomas";
 
+const Canvas = { width: 1024, height: 800 };
+
 // set the affected color scale
 const color = d3
   .scaleThreshold<number, string>()
-  .domain([0, 10, 20, 40, 80])
+  .domain([0, 10, 50, 60, 80])
   .range([
     "#45b6fe",
     "#f8fcfc",
@@ -22,7 +24,7 @@ const assignCCABackgroundColor = (comunidad: string) =>{
   const item = covid_comunidades_autonomas_april.find((item) => item.name === comunidad);
   console.log(item);
   console.log(item ? color(item.value) : color(0))
-  return color(item.value);
+  return item ? color(item.value) : color(0);
 } 
 const aProjection = d3Composite.geoConicConformalSpain();
 
@@ -32,11 +34,13 @@ const geojson = topojson.feature(spainjson, spainjson.objects.ESP_adm1);
 
 aProjection.fitSize([1024, 800], geojson);
 
+
+
 const svg = d3
   .select("body")
   .append("svg")
-  .attr("width", 1024)
-  .attr("height", 800)
+  .attr("width", Canvas.width)
+  .attr("height", Canvas.height)
   .attr("style", "background-color: #FBFAF0");
 
 svg
@@ -60,7 +64,7 @@ svg
   .attr("r", (d) => 20)
   .attr("cx", (d) => aProjection([d.long, d.lat])[0])
   .attr("cy", (d) => aProjection([d.long, d.lat])[1])
-  
+
 
 
 const updateChart = (covid_cca: comunidad[]) => {
@@ -102,10 +106,6 @@ const updateChart = (covid_cca: comunidad[]) => {
   // https://stackoverflow.com/questions/35892627/d3-map-d-attribute
 } 
 
-document.getElementById('april').addEventListener('click', () => {
+document.getElementById('results').addEventListener('click', () => {
   updateChart(covid_comunidades_autonomas_april);
-});
-
-document.getElementById('november').addEventListener('click', () => {
-  updateChart(covid_comunidades_autonomas_november);
 });
